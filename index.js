@@ -9,15 +9,14 @@ const rightGoal = document.querySelector(".score__ball-keeper-2");
 const scoreTeamOne = document.querySelector(".score__team-1");
 const scoreTeamTwo = document.querySelector(".score__team-2");
 
-//Balls appear randomly on the feild in the begining
-function getRandomArbitrary(min, max) {
-  return Math.floor(Math.random() * (max - min) + min);
-}
-
 const rectFeild = soccerFeild.getBoundingClientRect();
 const rectGoalArea = goalAreaSecond.getBoundingClientRect();
 const rectGoalArea1 = goalAreaFirst.getBoundingClientRect();
 const rectGoalArea2 = goalAreaSecond.getBoundingClientRect();
+
+console.log(rectGoalArea2.width + " ...rectGoalArea2.width");
+console.log(rectFeild.width + " ...rectFeild.width");
+console.log(rectFeild.width - rectGoalArea2.width);
 
 let scoreCount = {
   teamFirst: {
@@ -26,15 +25,35 @@ let scoreCount = {
   },
   teamSecond: {
     count: 0,
-    ballInFeild1: false,
+    ballInFeild2: false,
   },
 };
 
 scoreTeamOne.innerHTML = scoreCount.teamFirst.count;
 scoreTeamTwo.innerHTML = scoreCount.teamSecond.count;
 
+//chosing the winner of the game
+
+function choseTheWinner() {
+  if (scoreCount.teamFirst.count + scoreCount.teamSecond.count === 9) {
+    if (scoreCount.teamFirst.count > scoreCount.teamSecond.count) {
+      goalAreaFirst.style.background = "#66DE62";
+      goalAreaSecond.style.background = "#DE7562";
+    }
+    if (scoreCount.teamFirst.count < scoreCount.teamSecond.count) {
+      goalAreaSecond.style.background = "#66DE62";
+      goalAreaFirst.style.background = "#DE7562";
+    }
+  }
+}
+
 //Iterating over all balls
+
 [...balls].forEach((el) => {
+  // to set a random position for a ball in the beginning
+  function getRandomArbitrary(min, max) {
+    return Math.floor(Math.random() * (max - min) + min);
+  }
   const rectBall = el.getBoundingClientRect();
 
   const randomLeftPosition = getRandomArbitrary(
@@ -46,32 +65,17 @@ scoreTeamTwo.innerHTML = scoreCount.teamSecond.count;
     rectFeild.height - rectBall.height
   );
 
-  //A Function to set a random position for a ball
   function setPosition() {
     if (
       randomLeftPosition < rectGoalArea.width ||
       randomLeftPosition + rectBall.width >
         rectFeild.width - rectGoalArea.width - rectBall.width
-      //     &&
-      //     randomTopPosition > (rectFeild.height - rectGoalArea.height) / 2) ||
-      //   randomTopPosition <
-      //     rectFeild.height -
-      //       rectGoalArea.height -
-      //       (rectFeild.height - rectGoalArea.height) / 2
     ) {
       el.style.left =
         getRandomArbitrary(
           rectGoalArea.width,
           rectFeild.width - rectGoalArea.width - rectBall.width
         ) + "px";
-      //   el.style.left =
-      //     getRandomArbitrary(
-      //       rectBall.height,
-      //       (rectFeild.height - rectGoalArea.height) / 2 ||
-      //         rectFeild.height -
-      //           rectGoalArea.height +
-      //           (rectFeild.height - rectGoalArea.height) / 2
-      //     ) + "px";
     } else {
       el.style.left = randomLeftPosition + "px";
       el.style.top = randomTopPosition + "px";
@@ -86,16 +90,16 @@ function mousedown(e) {
   soccerFeild.addEventListener("mousemove", mousemove);
   soccerFeild.addEventListener("mouseup", mouseup);
 
-  let target = e.target;
-  //   const rect = target.getBoundingClientRect();
+  //functionality for moving ball around
 
+  const target = e.target;
   const rect = target.getBoundingClientRect();
 
-  let prevX = Math.round(rect.left);
-  let prevY = Math.round(rect.top);
+  const prevX = Math.round(rect.left);
+  const prevY = Math.round(rect.top);
 
-  let ballLeft = parseInt(target.style.left, 10);
-  let ballTop = isNaN(parseInt(target.style.top, 10))
+  const ballLeft = parseInt(target.style.left, 10);
+  const ballTop = isNaN(parseInt(target.style.top, 10))
     ? 0
     : parseInt(target.style.top, 10);
 
@@ -105,36 +109,70 @@ function mousedown(e) {
     const rect = target.getBoundingClientRect();
 
     target.style.left = ballLeft - 20 - newX + "px";
-    // console.log(target.style.left);
-
     target.style.top = ballTop - 20 - newY + "px";
-    target.style.zIndex = 2;
-
-    // console.log(rectGoalArea1.width + " ... rectGoalArea1.width");
-
-    //A function to add score
-
-    // funciton scoring() {}
-    if (
-      rect.left > rectGoalArea1.left &&
-      rect.left < rectGoalArea1.left + rectGoalArea1.width - rect.width
-    ) {
-      // scoreTeamTwo.innerHTML = scoreCount.teamSecond;
-      target.removeEventListener("mousedown", mousedown);
-      scoreCount.teamFirst.ballInFeild1 = true;
-      leftGoal.appendChild = `${target}`;
-    }
+    target.style.zIndex = 1;
   }
 
-  function mouseup() {
-    // console.log(target.offsetLeft + "   rect.left");
-    if (scoreCount.teamFirst.ballInFeild1 === true) {
-      scoreCount.teamFirst.count += 1;
-      scoreTeamOne.innerHTML = scoreCount.teamFirst.count;
+  //Stopping the dragging ball and scoring
+
+  function mouseup(e) {
+    const target = e.target;
+    const rect = target.getBoundingClientRect();
+
+    //adding scored ball to the title
+
+    function addBallIntoTitle(parent) {
+      const targetCopy = document.createElement("div");
+      targetCopy.className = target.className + " scored-ball";
+      targetCopy.innerText = target.innerText;
+      parent.appendChild(targetCopy);
     }
-    scoreCount.teamFirst.ballInFeild1 = false;
+
+    //scoring the ball into goal area
+
+    function putBallIntoFoalArea() {
+      if (
+        rect.left > rectGoalArea1.left &&
+        rect.left < rectGoalArea1.left + rectGoalArea1.width - rect.width &&
+        rect.top > rectGoalArea1.top &&
+        rect.top < rectGoalArea1.top + rectGoalArea1.height - rect.height
+      ) {
+        target.removeEventListener("mousedown", mousedown);
+        scoreCount.teamFirst.ballInFeild1 = true;
+        addBallIntoTitle(leftGoal);
+      }
+      //   if (
+      //     rect.left > rectFeild.width - rectGoalArea2.width &&
+      //     rect.left < rectFeild.width &&
+      //     rect.top > rectGoalArea2.top &&
+      //     rect.top < rectGoalArea2.top + rectGoalArea2.height - rect.height
+      //   ) {
+      //     target.removeEventListener("mousedown", mousedown);
+      //     scoreCount.teamSecond.ballInFeild2 = true;
+      //     addBallIntoTitle(rightGoal);
+      //   }
+    }
+
+    //Functions to score and calculate score
+
+    function scoreTeamFirst() {
+      putBallIntoFoalArea();
+
+      if (scoreCount.teamFirst.ballInFeild1 === true) {
+        scoreCount.teamFirst.count += 1;
+        scoreTeamOne.innerHTML = scoreCount.teamFirst.count;
+      }
+      if (scoreCount.teamSecond.ballInFeild2 === true) {
+        scoreCount.teamSecond.count += 1;
+        scoreTeamTwo.innerHTML = scoreCount.teamSecond.count;
+      }
+      scoreCount.teamFirst.ballInFeild1 = false;
+      scoreCount.teamSecond.ballInFeild2 = false;
+    }
+    scoreTeamFirst();
 
     soccerFeild.removeEventListener("mousemove", mousemove);
     soccerFeild.removeEventListener("mouseup", mouseup);
+    choseTheWinner();
   }
 }

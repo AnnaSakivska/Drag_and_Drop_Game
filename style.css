@@ -127,6 +127,11 @@ html {
   user-select: none;
 }
 
+.scored-ball {
+  position: relative;
+  margin-right: 5px;
+}
+
 .ball--color-dark-blue {
   background: #214bf2;
 }
