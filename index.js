@@ -102,6 +102,7 @@ function mousedown(e) {
   function mousemove(e) {
     let newX = prevX - e.clientX;
     let newY = prevY - e.clientY;
+    const rect = target.getBoundingClientRect();
 
     target.style.left = ballLeft - 20 - newX + "px";
     // console.log(target.style.left);
@@ -112,15 +113,16 @@ function mousedown(e) {
     // console.log(rectGoalArea1.width + " ... rectGoalArea1.width");
 
     //A function to add score
+
+    // funciton scoring() {}
     if (
-      target.offsetLeft > rectGoalArea1.left &&
-      target.offsetLeft < rectGoalArea1.left + rectGoalArea1.width - rect.width
+      rect.left > rectGoalArea1.left &&
+      rect.left < rectGoalArea1.left + rectGoalArea1.width - rect.width
     ) {
       // scoreTeamTwo.innerHTML = scoreCount.teamSecond;
       target.removeEventListener("mousedown", mousedown);
       scoreCount.teamFirst.ballInFeild1 = true;
       leftGoal.appendChild = `${target}`;
-      //   console.log()
     }
   }
 
