@@ -14,9 +14,9 @@ const rectGoalArea = goalAreaSecond.getBoundingClientRect();
 const rectGoalArea1 = goalAreaFirst.getBoundingClientRect();
 const rectGoalArea2 = goalAreaSecond.getBoundingClientRect();
 
-console.log(rectGoalArea2.width + " ...rectGoalArea2.width");
-console.log(rectFeild.width + " ...rectFeild.width");
-console.log(rectFeild.width - rectGoalArea2.width);
+// console.log(rectGoalArea2.width + " ...rectGoalArea2.width");
+// console.log(rectFeild.width + " ...rectFeild.width");
+// console.log(rectFeild.width - rectGoalArea2.width);
 
 let scoreCount = {
   teamFirst: {
@@ -29,13 +29,18 @@ let scoreCount = {
   },
 };
 
+const ballsAmount = 9;
+
 scoreTeamOne.innerHTML = scoreCount.teamFirst.count;
 scoreTeamTwo.innerHTML = scoreCount.teamSecond.count;
 
 //chosing the winner of the game
 
 function choseTheWinner() {
-  if (scoreCount.teamFirst.count + scoreCount.teamSecond.count === 9) {
+  if (
+    scoreCount.teamFirst.count + scoreCount.teamSecond.count ===
+    ballsAmount
+  ) {
     if (scoreCount.teamFirst.count > scoreCount.teamSecond.count) {
       goalAreaFirst.style.background = "#66DE62";
       goalAreaSecond.style.background = "#DE7562";
@@ -103,21 +108,38 @@ function mousedown(e) {
     ? 0
     : parseInt(target.style.top, 10);
 
+  // console.log(rect.left);
+
   function mousemove(e) {
     let newX = prevX - e.clientX;
     let newY = prevY - e.clientY;
     const rect = target.getBoundingClientRect();
-
-    target.style.left = ballLeft - 20 - newX + "px";
-    target.style.top = ballTop - 20 - newY + "px";
     target.style.zIndex = 1;
+
+    // Restricting the area of game
+    function restrictGameArea() {
+      if (parseInt(target.style.left) < 0) {
+        target.style.left = 0;
+      } else if (parseInt(target.style.left) > rectFeild.width - rect.width) {
+        target.style.left = rectFeild.width - rect.width + "px";
+      } else if (parseInt(target.style.top) < 0) {
+        target.style.top = 0;
+      } else if (parseInt(target.style.top) > rectFeild.height - rect.height) {
+        target.style.top = rectFeild.height - rect.height + "px";
+      } else {
+        target.style.left = ballLeft - 20 - newX + "px";
+        target.style.top = ballTop - 20 - newY + "px";
+      }
+    }
+    restrictGameArea();
   }
 
   //Stopping the dragging ball and scoring
 
-  function mouseup(e) {
+  function mouseup() {
     const target = e.target;
     const rect = target.getBoundingClientRect();
+    console.log(target);
 
     //adding scored ball to the title
 
@@ -141,16 +163,16 @@ function mousedown(e) {
         scoreCount.teamFirst.ballInFeild1 = true;
         addBallIntoTitle(leftGoal);
       }
-      //   if (
-      //     rect.left > rectFeild.width - rectGoalArea2.width &&
-      //     rect.left < rectFeild.width &&
-      //     rect.top > rectGoalArea2.top &&
-      //     rect.top < rectGoalArea2.top + rectGoalArea2.height - rect.height
-      //   ) {
-      //     target.removeEventListener("mousedown", mousedown);
-      //     scoreCount.teamSecond.ballInFeild2 = true;
-      //     addBallIntoTitle(rightGoal);
-      //   }
+      if (
+        rect.left > rectFeild.left + rectFeild.width - rectGoalArea2.width &&
+        rect.left < rectFeild.left + rectFeild.width &&
+        rect.top > rectGoalArea2.top &&
+        rect.top < rectGoalArea2.top + rectGoalArea2.height - rect.height
+      ) {
+        target.removeEventListener("mousedown", mousedown);
+        scoreCount.teamSecond.ballInFeild2 = true;
+        addBallIntoTitle(rightGoal);
+      }
     }
 
     //Functions to score and calculate score
@@ -169,10 +191,10 @@ function mousedown(e) {
       scoreCount.teamFirst.ballInFeild1 = false;
       scoreCount.teamSecond.ballInFeild2 = false;
     }
-    scoreTeamFirst();
 
     soccerFeild.removeEventListener("mousemove", mousemove);
     soccerFeild.removeEventListener("mouseup", mouseup);
+    scoreTeamFirst();
     choseTheWinner();
   }
 }
