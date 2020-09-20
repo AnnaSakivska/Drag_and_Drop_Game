@@ -112,15 +112,15 @@ function mousedown(e) {
 
     // Restricting the area of game
     function restrictGameArea() {
-      //the solution for the bug when the ball sticks to the mouse even when the mouse is up,
+      //the attempt to to fix the bug when the ball sticks to the mouse even when the mouse is up,
       // and when we put such ball into the goal area it is counted two balls instead of one.
       // This solution helps to avoid such sticking but it removes all event listeners
       // when we touch the boundaries and a ball stops moving
       if (
-        parseInt(target.style.left) < -10 ||
-        parseInt(target.style.left) > rectFeild.width - rect.width + 10 ||
-        parseInt(target.style.top) < -10 ||
-        parseInt(target.style.top) > rectFeild.height - rect.height + 10
+        parseInt(target.style.left) < -5 ||
+        parseInt(target.style.left) > rectFeild.width - rect.width + 5 ||
+        parseInt(target.style.top) < -5 ||
+        parseInt(target.style.top) > rectFeild.height - rect.height + 5
       ) {
         soccerFeild.removeEventListener("mousemove", mousemove);
         soccerFeild.removeEventListener("mouseup", mouseup);
@@ -161,6 +161,8 @@ function mousedown(e) {
     //scoring the ball into goal area
 
     function putBallIntoFoalArea() {
+      // there is the issue with the scrolling -
+      // if we scroll and not reload the page all getBoundingClientRect() will not recount
       if (
         rect.left > rectGoalArea1.left &&
         rect.left < rectGoalArea1.left + rectGoalArea1.width - rect.width &&
