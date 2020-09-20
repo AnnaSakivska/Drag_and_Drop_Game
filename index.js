@@ -14,10 +14,6 @@ const rectGoalArea = goalAreaSecond.getBoundingClientRect();
 const rectGoalArea1 = goalAreaFirst.getBoundingClientRect();
 const rectGoalArea2 = goalAreaSecond.getBoundingClientRect();
 
-// console.log(rectGoalArea2.width + " ...rectGoalArea2.width");
-// console.log(rectFeild.width + " ...rectFeild.width");
-// console.log(rectFeild.width - rectGoalArea2.width);
-
 let scoreCount = {
   teamFirst: {
     count: 0,
@@ -108,8 +104,6 @@ function mousedown(e) {
     ? 0
     : parseInt(target.style.top, 10);
 
-  // console.log(rect.left);
-
   function mousemove(e) {
     let newX = prevX - e.clientX;
     let newY = prevY - e.clientY;
@@ -118,6 +112,21 @@ function mousedown(e) {
 
     // Restricting the area of game
     function restrictGameArea() {
+      //the solution for the bug when the ball sticks to the mouse even when the mouse is up,
+      // and when we put such ball into the goal area it is counted two balls instead of one.
+      // This solution helps to avoid such sticking but it removes all event listeners
+      // when we touch the boundaries and a ball stops moving
+      if (
+        parseInt(target.style.left) < -10 ||
+        parseInt(target.style.left) > rectFeild.width - rect.width + 10 ||
+        parseInt(target.style.top) < -10 ||
+        parseInt(target.style.top) > rectFeild.height - rect.height + 10
+      ) {
+        soccerFeild.removeEventListener("mousemove", mousemove);
+        soccerFeild.removeEventListener("mouseup", mouseup);
+      }
+
+      //conditions of restrict
       if (parseInt(target.style.left) < 0) {
         target.style.left = 0;
       } else if (parseInt(target.style.left) > rectFeild.width - rect.width) {
@@ -139,7 +148,6 @@ function mousedown(e) {
   function mouseup() {
     const target = e.target;
     const rect = target.getBoundingClientRect();
-    console.log(target);
 
     //adding scored ball to the title
 
